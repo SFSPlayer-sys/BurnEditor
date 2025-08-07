@@ -45,20 +45,19 @@ namespace BurnEditor
                     () => $"Burn Angle: {burnParams.BurnAngle:F0}°",
                     () => "0° - 360°",
                     () => burnParams.BurnAngle / 360f, // 转换为0-1范围
-                                         (value, fromInput) => {
-                         burnParams.BurnAngle = value * 360f; // 转换回0-360度
-                         // 确保步长为15度
-                         burnParams.BurnAngle = Mathf.Round(burnParams.BurnAngle / 15f) * 15f;
-                         
-                         // 实时应用效果到部件
-                         PartStatsPatch.ApplyBurnEffect(__instance, burnParams);
-                     },
-                    (updateAction) => { 
-                        // 注册更新回调，当UI需要刷新时调用
+                    (value, fromInput) => {
+                        float newAngle = Mathf.Round((value * 360f) / 15f) * 15f;
+                        foreach (var part in allParts) {
+                            if (!partBurnParams.ContainsKey(part))
+                                partBurnParams[part] = new BurnParameters();
+                            partBurnParams[part].BurnAngle = newAngle;
+                            ApplyBurnEffect(part, partBurnParams[part]);
+                        }
+                    },
+                    (updateAction) => {
                         burnParams.OnBurnAngleChanged += updateAction;
                     },
-                    (updateAction) => { 
-                        // 取消注册更新回调
+                    (updateAction) => {
                         burnParams.OnBurnAngleChanged -= updateAction;
                     },
                     false // startUndoStep参数
@@ -70,20 +69,19 @@ namespace BurnEditor
                     () => $"Burn Intensity: {burnParams.BurnIntensity:F2}",
                     () => "0.00 - 1.50",
                     () => burnParams.BurnIntensity / 1.5f, // 转换为0-1范围
-                                         (value, fromInput) => {
-                         burnParams.BurnIntensity = value * 1.5f; // 转换回0-1.5范围
-                         // 确保步长为0.05
-                         burnParams.BurnIntensity = Mathf.Round(burnParams.BurnIntensity / 0.05f) * 0.05f;
-                         
-                         // 实时应用效果到部件
-                         PartStatsPatch.ApplyBurnEffect(__instance, burnParams);
-                     },
-                    (updateAction) => { 
-                        // 注册更新回调，当UI需要刷新时调用
+                    (value, fromInput) => {
+                        float newIntensity = Mathf.Round((value * 1.5f) / 0.05f) * 0.05f;
+                        foreach (var part in allParts) {
+                            if (!partBurnParams.ContainsKey(part))
+                                partBurnParams[part] = new BurnParameters();
+                            partBurnParams[part].BurnIntensity = newIntensity;
+                            ApplyBurnEffect(part, partBurnParams[part]);
+                        }
+                    },
+                    (updateAction) => {
                         burnParams.OnBurnIntensityChanged += updateAction;
                     },
-                    (updateAction) => { 
-                        // 取消注册更新回调
+                    (updateAction) => {
                         burnParams.OnBurnIntensityChanged -= updateAction;
                     },
                     false // startUndoStep参数

@@ -15,7 +15,7 @@ namespace BurnEditor
         public override string DisplayName => "Burn Editor";
         public override string Author => "SFSGamer";
         public override string MinimumGameVersionNecessary => "1.5.10.2";
-        public override string ModVersion => "v1.0.0";
+        public override string ModVersion => "v1.0.1";
         public override string Description => "Adds a burn planning interface to the build menu.";
 
         static Harmony patcher;
