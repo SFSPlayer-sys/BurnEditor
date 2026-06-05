@@ -6,7 +6,6 @@ using System.Collections.Generic;
 
 namespace BurnEditor
 {
-    // 补丁PartSave构造函数，在保存时写入自定义burns字段
     [HarmonyPatch(typeof(PartSave))]
     public class PartSavePatch
     {
@@ -22,22 +21,27 @@ namespace BurnEditor
                 {
                     var burnParams = PartStatsPatch.partBurnParams[part];
                     
-                    // 只有当angle和intensity不全为0时才写入burns字段
-                    if (burnParams.BurnAngle != 0f || burnParams.BurnIntensity != 0f)
+                    bool hasMeaningfulData =
+                        burnParams.BurnAngle != 0f ||
+                        burnParams.BurnIntensity != 0f ||
+                        Mathf.Abs(burnParams.X - 0.3f) > 0.0001f ||
+                        !string.IsNullOrEmpty(burnParams.Top) ||
+                        !string.IsNullOrEmpty(burnParams.Bottom);
+                    if (hasMeaningfulData)
                     {
                         // 使用现有的BurnMark.BurnSave结构
                         __instance.burns = new BurnMark.BurnSave
                         {
                             angle = burnParams.BurnAngle,
                             intensity = burnParams.BurnIntensity,
-                            x = 0.3f, // 默认值
-                            top = "",
-                            bottom = ""
+                            x = burnParams.X,
+                            top = burnParams.Top ?? string.Empty,
+                            bottom = burnParams.Bottom ?? string.Empty
                         };
                     }
                     else
                     {
-                        // 如果angle和intensity全为0，则不写入burns字段
+                        __instance.burns = null;
                     }
                 }
             }
